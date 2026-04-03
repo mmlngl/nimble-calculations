@@ -7,12 +7,12 @@ from plotly.subplots import make_subplots
 
 # Page configuration
 st.set_page_config(
-    page_title="Weekly Scheduling Impact Analysis",
+    page_title="FeedFast: Weekly Scheduling Impact Analysis",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-st.title("🍽️ Food Delivery: Weekly Scheduling Feature Impact")
+st.title("🍽️ FeedFast: Weekly Scheduling Feature Impact")
 st.markdown(
     "**Business Proposition**: Enable users to schedule their food orders for the entire week in advance"
 )
@@ -43,7 +43,7 @@ baseline_orders_per_week = st.sidebar.number_input(
     "Average Orders per User per Week (Current)",
     min_value=0.5,
     max_value=10.0,
-    value=2.3,
+    value=1.0,
     step=0.1,
     help="Current average weekly orders per user",
 )
@@ -51,22 +51,22 @@ baseline_orders_per_week = st.sidebar.number_input(
 # Advanced parameters
 st.sidebar.subheader("📈 Feature Impact Modeling")
 
-scheduling_frequency_boost = st.sidebar.slider(
-    "Weekly Scheduling Users Order Boost",
-    min_value=1.0,
-    max_value=3.0,
-    value=1.7,
-    step=0.1,
-    help="Multiplier for how much more frequently scheduling users order",
+min_additional_scheduled_orders = st.sidebar.slider(
+    "Minimum Additional Scheduled Orders per Week",
+    min_value=3,
+    max_value=10,
+    value=5,
+    step=1,
+    help="Minimum additional orders per week when users adopt weekly scheduling",
 )
 
-planning_effect = st.sidebar.slider(
-    "Planning Effect Bonus (%)",
+extra_scheduled_orders = st.sidebar.slider(
+    "Extra Scheduled Orders Beyond Minimum (%)",
     min_value=0,
-    max_value=40,
-    value=15,
-    step=5,
-    help="Additional orders due to better meal planning and reduced decision fatigue",
+    max_value=100,
+    value=20,
+    step=10,
+    help="Percentage of users who schedule even more orders beyond the minimum",
 )
 
 convenience_retention = st.sidebar.slider(
@@ -91,14 +91,20 @@ def calculate_impact():
     # Orders calculation
     non_scheduling_orders = non_scheduling_users * baseline_orders_per_week
 
-    # Scheduling users benefit from multiple factors
-    scheduling_base = (
-        scheduling_users * baseline_orders_per_week * scheduling_frequency_boost
-    )
-    planning_bonus = scheduling_base * (planning_effect / 100)
-    retention_bonus = scheduling_base * (convenience_retention / 100)
+    # Scheduling users: baseline + minimum additional + potential extra orders
+    baseline_scheduling_orders = scheduling_users * baseline_orders_per_week
+    minimum_additional = scheduling_users * min_additional_scheduled_orders
 
-    scheduling_orders = scheduling_base + planning_bonus + retention_bonus
+    # Some users schedule even more beyond the minimum
+    extra_orders = minimum_additional * (extra_scheduled_orders / 100)
+
+    # Retention effect adds to the total
+    total_scheduled_base = (
+        baseline_scheduling_orders + minimum_additional + extra_orders
+    )
+    retention_bonus = total_scheduled_base * (convenience_retention / 100)
+
+    scheduling_orders = total_scheduled_base + retention_bonus
 
     total_orders_with_feature = non_scheduling_orders + scheduling_orders
 
@@ -325,11 +331,11 @@ with col1:
     st.markdown("""
     **🚀 Why Weekly Scheduling Drives Growth:**
 
-    - **Reduced Friction**: Users don't need to decide what to order each day
-    - **Better Planning**: Users order more when planning meals in advance
-    - **Habit Formation**: Regular scheduling creates consistent ordering patterns
-    - **Increased Basket Size**: Planning ahead leads to more thoughtful, larger orders
-    - **Higher Retention**: Convenience keeps users engaged longer
+    - **Bulk Planning**: Users schedule minimum 5 additional orders per week in advance
+    - **Reduced Decision Fatigue**: No daily ordering decisions needed
+    - **Habit Formation**: Weekly planning creates consistent, predictable ordering patterns
+    - **Higher Order Volume**: Planning ahead naturally leads to more frequent orders
+    - **Convenience Factor**: Easy scheduling keeps users engaged and ordering more
     """)
 
 with col2:
@@ -339,6 +345,7 @@ with col2:
     - **{results["multiplier"]:.1f}x** increase in total weekly orders
     - **{results["scheduling_users"]:,}** users ({scheduling_adoption}%) adopt feature
     - **+{results["additional_orders"]:,.0f}** additional weekly orders
+    - **Minimum +{min_additional_scheduled_orders}** orders per scheduling user per week
     - **${annual_additional_revenue:,.0f}** additional annual revenue
     - **{results["percentage_increase"]:.1f}%** growth in order volume
 
@@ -349,22 +356,22 @@ with col2:
 with st.expander("🎯 Implementation Considerations"):
     st.markdown("""
     **Feature Requirements:**
-    - Weekly meal planning interface
+    - Weekly meal planning interface (minimum 5 orders)
     - Flexible scheduling and modification options
-    - Smart recommendations based on user preferences
-    - Integration with restaurant availability
+    - Smart recommendations to reach minimum order threshold
+    - Integration with restaurant availability and delivery slots
 
     **Success Factors:**
-    - User-friendly planning interface
-    - Reliable delivery scheduling
-    - Easy modification/cancellation process
-    - Incentives for early adoption
+    - User-friendly planning interface encouraging bulk scheduling
+    - Reliable delivery scheduling for multiple orders
+    - Easy modification/cancellation process for scheduled orders
+    - Incentives for early adoption and meeting minimum order requirements
 
     **Key Metrics to Track:**
     - Weekly scheduling adoption rate
-    - Order frequency among scheduling users
+    - Average scheduled orders per planning user (target: 5+ minimum)
     - User retention improvement
-    - Average order value changes
+    - Completion rate of scheduled orders
     """)
 
 # Footer
