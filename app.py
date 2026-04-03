@@ -300,7 +300,7 @@ col1, col2 = st.columns([1, 2])
 
 with col1:
     avg_order_value = st.number_input(
-        "Average Order Value ($)", min_value=10, max_value=100, value=32, step=5
+        "Average Order Value (฿)", min_value=300, max_value=3000, value=900, step=100
     )
 
 with col2:
@@ -313,13 +313,13 @@ with col2:
     col2a, col2b, col2c = st.columns(3)
 
     with col2a:
-        st.metric("Weekly Revenue (Current)", f"${weekly_baseline_revenue:,.0f}")
+        st.metric("Weekly Revenue (Current)", f"฿{weekly_baseline_revenue:,.0f}")
 
     with col2b:
-        st.metric("Weekly Revenue (With Feature)", f"${weekly_feature_revenue:,.0f}")
+        st.metric("Weekly Revenue (With Feature)", f"฿{weekly_feature_revenue:,.0f}")
 
     with col2c:
-        st.metric("Additional Annual Revenue", f"${annual_additional_revenue:,.0f}")
+        st.metric("Additional Annual Revenue", f"฿{annual_additional_revenue:,.0f}")
 
 # Business case summary
 st.markdown("---")
@@ -346,7 +346,7 @@ with col2:
     - **{results["scheduling_users"]:,}** users ({scheduling_adoption}%) adopt feature
     - **+{results["additional_orders"]:,.0f}** additional weekly orders
     - **Minimum +{min_additional_scheduled_orders}** orders per scheduling user per week
-    - **${annual_additional_revenue:,.0f}** additional annual revenue
+    - **฿{annual_additional_revenue:,.0f}** additional annual revenue
     - **{results["percentage_increase"]:.1f}%** growth in order volume
 
     *ROI depends on implementation costs and user acquisition*
